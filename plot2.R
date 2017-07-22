@@ -1,21 +1,36 @@
-plot2 <- function(startDate = "2007-02-01", endDate="2007-02-02") {
+plot2 <- function() {
+  setwd("~/devel/repos/ExData_Plotting1")
+  library(dplyr)
+  library(RColorBrewer)
+  #Have total emissions frequire(dplyr)rerom PM2.5 decreased in the United States from 1999 to 
+  #2008? Using the base plotting system, make a plot showing the total PM2.5 
+  #emission from all sources for each of the years 1999, 2002, 2005, and 2008
   
-  data <- read.csv("household_power_consumption.txt", header=T, sep=";")
-  data$Date <- as.Date(data$Date,format="%d/%m/%Y")
+  ## This first line will likely take a few seconds. Be patient!
+  if(!exists("NEI")){
+    NEI <- readRDS("summarySCC_PM25.rds")
+  }
+  if(!exists("SCC")){
+    SCC <- readRDS("Source_Classification_Code.rds")
+  }
+   
+  baltcitymary.emissions <- summarise(group_by(filter(NEI, fips == "24510"), year), Emissions=sum(Emissions))
   
-  #We will only be using data from the dates 2007-02-01 and 2007-02-02
-  df <- data[(data$Date==startDate) | (data$Date==endDate),]
-  
-  df$Global_active_power <- as.numeric(as.character(df$Global_active_power))
-  
-  # First: Mount the timestamp format
-  df$Datetime <- with(df, paste(Date, Time))
-  # Second : Convert to "POSIXlt" "POSIXt" class
-  df$Datetime <- strptime(df$Datetime, "%Y-%m-%d %H:%M:%S")
+  png("plot2.png", width=800, height=800)
+  clrs <- brewer.pal(4,"Set3")
 
-  plot(df$Datetime,df$Global_active_power, type="l", xlab="", ylab="Global Active Power (kilowatts)")
+  x1<-barplot(height=baltcitymary.emissions$Emissions/1000, names.arg=baltcitymary.emissions$year,
+              xlab="years", ylab=expression('total PM'[2.5]*' emission in kilotons'),ylim=c(0,4),
+              main=expression('Total PM'[2.5]*' emissions at various years in kilotons'),col=clrs)
+  ## Add text at top of bars
+  text(x = x1, y = round(baltcitymary.emissions$Emissions/1000,2), label = round(baltcitymary.emissions$Emissions/1000,2), pos = 3, cex = 0.8, col = "black")
   
-  dev.copy(png, file="plot2.png", width=480, height=480)
   dev.off()
   
-}
+  #splt <- split(NEI, NEI$year)
+  #data <- with(NEI, tapply(Emissions, year, sum))
+  
+  #TotalByYear <- aggregate(Emissions ~ year, NEI, sum)
+  #barplot(height=TotalByYear$Emissions, names.arg=aggregatedTotalByYear$year, xlab="years", ylab=expression('total PM'[2.5]*' emission'),main=expression('Total PM'[2.5]*' emissions'))
+  
+  }
