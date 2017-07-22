@@ -1,7 +1,7 @@
 plot4 <- function() {
   setwd("~/devel/repos/ExData_Plotting1")
-  library(dplyr)
-  library(RColorBrewer)
+  require(dplyr)
+  require(RColorBrewer)
   require(ggplot2)
   require(stringr)
   #Have total emissions frequire(dplyr)rerom PM2.5 decreased in the United States from 1999 to 
@@ -21,18 +21,15 @@ plot4 <- function() {
   
   # Find emissions from coal combustion-related sources
   emissions.coal.combustion <- inner_join(NEI, combustion.coal)
-  emissions.coal.related <- summarise(group_by(emissions.coal.combustion, year), Emissions=sum(Emissions))
+  emissions.coal.related <- summarise(group_by(emissions.coal.combustion, year, type), Emissions=sum(Emissions))
   
   png("plot4.png", width=800, height=800)
   
-  g <- ggplot(emissions.coal.related, aes(x=factor(year), y=Emissions/1000,fill=year, label = round(Emissions/1000,2))) +
-    geom_bar(stat="identity") +
-    #geom_bar(position = 'dodge')+
-    # facet_grid(. ~ year) +
-    xlab("year") +
-    ylab(expression("total PM"[2.5]*" emissions in kilotons")) +
-    ggtitle("Emissions from coal combustion-related sources in kilotons")+
-    geom_label(aes(fill = year),colour = "white", fontface = "bold")
+  g<- qplot(year, Emissions, data=emissions.coal.related, color=type, geom="line") + 
+    #stat_summary(fun.y = "sum", fun.ymin = "sum", fun.ymax = "sum", color = "purple", aes(shape="total"), geom="line") + 
+    #geom_line(aes(size="total", shape = NA)) + 
+    ggtitle(expression("Coal Combustion" ~ PM[2.5] ~ "Emissions by Source Type and Year")) + xlab("Year") + ylab(expression("Total" ~ PM[2.5] ~ "Emissions (tons)")) +
+    ggtitle(expression("Coal Combustion" ~ PM[2.5] ~ "Emissions by Source Type and Year")) + xlab("Year") + ylab(expression("Total" ~ PM[2.5] ~ "Emissions (tons)"))
   print(g)
   dev.off()
   

@@ -26,7 +26,9 @@ plot6 <- function() {
   clrs <- brewer.pal(4,"Set3")
   g<-ggplot(both.emissions, aes(x=factor(year), y=Emissions, fill=County,label = round(Emissions,2))) +
     geom_bar(stat="identity") + 
-    facet_grid(County~., scales="free") +
+    #facet_grid(County~., scales="free") +
+    facet_grid(County~., scales="fixed") +
+    
     ylab(expression("total PM"[2.5]*" emissions in tons")) + 
     xlab("year") +
     ggtitle(expression("Motor vehicle emission variation in Baltimore and Los Angeles in tons"))+
